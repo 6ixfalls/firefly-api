@@ -31,13 +31,6 @@ jobs:
       - name: Build
         if: steps.cache.outputs.cache-hit != 'true'
         run: npm run ci
-      - name: Bump
-        if: steps.cache.outputs.cache-hit != 'true'
-        uses: phips28/gh-action-bump-version@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          version-type: patch
       - name: Commit
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
@@ -45,15 +38,58 @@ jobs:
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .
           git commit -m "Update API"
-      - name: Push
+      - name: Bump
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: ad-m/github-push-action@master
+        uses: phips28/gh-action-bump-version@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: main
+          version-type: patch
+          target-branch: main
       - name: Archive built files
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/upload-artifact@v2
         with:
           name: dist
           path: dist
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    name: Publish to NPM
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+      - name: Install
+        run: npm install
+      - name: Download built files
+        uses: actions/download-artifact@v2
+        with:
+          name: dist
+      - name: Publish
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+
+    steps:
+      - name: Download built files
+        uses: actions/download-artifact@v2
+        with:
+          name: dist
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: false
+          files: |
+            dist/**/*
+          name: firefly-api ${{ github.ref_name }}
