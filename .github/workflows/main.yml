@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js ${{ matrix.node }}
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
       - name: Install
@@ -27,7 +27,7 @@ jobs:
         run: npm run fetch
       - name: Check cache
         id: cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: firefly-iii-spec.yaml
           key: ${{ hashFiles('firefly-iii-spec.yaml') }}
@@ -52,7 +52,7 @@ jobs:
           target-branch: main
       - name: Archive built files
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: dist
           path: dist
@@ -64,13 +64,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js 16
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16
       - name: Install
         run: npm install
       - name: Download built files
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: dist
       - name: Publish
@@ -83,7 +83,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download built files
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: dist
       - name: Create Release
@@ -93,3 +93,4 @@ jobs:
           files: |
             dist/**/*
           name: firefly-api ${{ needs.build.outputs.version }}
+          tag_name: ${{ needs.build.outputs.version }}
