@@ -50,7 +50,6 @@ jobs:
         with:
           version-type: patch
           target-branch: main
-          commit-message: "CI: Bump version to {{version}} [skip ci]"
       - name: Archive built files
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/upload-artifact@v2
