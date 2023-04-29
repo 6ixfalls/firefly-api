@@ -1,0 +1,59 @@
+name: API Update
+on:
+  schedule:
+    - cron: "0 0 * * 1"
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [16]
+    name: Node ${{ matrix.node }} sample
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Install
+        run: npm install
+      - name: Fetch API
+        run: npm run fetch
+      - name: Check cache
+        uses: actions/cache@v2
+        with:
+          path: firefly-iii-spec.yaml
+          key: ${{ hashFiles('firefly-iii-spec.yaml') }}
+      - name: Build
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm run ci
+      - name: Bump
+        if: steps.cache.outputs.cache-hit != 'true'
+        uses: phips28/gh-action-bump-version@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          version-type: patch
+      - name: Commit
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Update API"
+      - name: Push
+        if: steps.cache.outputs.cache-hit != 'true'
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
+      - name: Archive built files
+        if: steps.cache.outputs.cache-hit != 'true'
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist
+          path: dist

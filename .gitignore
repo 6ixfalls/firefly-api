@@ -2,7 +2,6 @@ wwwroot/*.js
 node_modules
 typings
 dist
-firefly-iii-spec.yaml
 api.ts
 base.ts
 common.ts
