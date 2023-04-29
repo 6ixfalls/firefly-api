@@ -6,16 +6,15 @@ on:
   push:
     branches:
       - main
-    tags:
-      - "*"
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         node: [16]
-    if: ${{ !startsWith(github.ref, 'refs/tags/') }}
-    name: Node ${{ matrix.node }} sample
+    name: Node ${{ matrix.node }} - Build
+    outputs:
+      version: ${{ steps.bump.outputs.newTag }}
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js ${{ matrix.node }}
@@ -44,6 +43,7 @@ jobs:
           git commit -m "Update API"
       - name: Bump
         if: steps.cache.outputs.cache-hit != 'true'
+        id: bump
         uses: phips28/gh-action-bump-version@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -60,9 +60,7 @@ jobs:
   publish:
     needs: build
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
     name: Publish to NPM
-
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js 16
@@ -83,8 +81,6 @@ jobs:
   release:
     needs: build
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
-
     steps:
       - name: Download built files
         uses: actions/download-artifact@v2
@@ -96,4 +92,4 @@ jobs:
           draft: false
           files: |
             dist/**/*
-          name: firefly-api ${{ github.ref_name }}
+          name: firefly-api ${{ jobs.build.outputs.version }}
