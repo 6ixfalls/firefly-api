@@ -8,7 +8,7 @@
     "dist/**/*"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.esm.json",
     "generate": "openapi-generator-cli generate -i firefly-iii-spec.yaml -g typescript-axios -o . -c ./openapi-generator.json",
     "fetch": "curl -o firefly-iii-spec.yaml https://api-docs.firefly-iii.org/firefly-iii-2.0.0-v1.yaml && npm run replace",
     "replace": "replace-in-file --configFile=replace.js",
