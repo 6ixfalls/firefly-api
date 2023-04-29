@@ -63,6 +63,8 @@ jobs:
     name: Publish to NPM
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: main
       - name: Use Node.js 16
         uses: actions/setup-node@v3
         with:
@@ -97,6 +99,6 @@ jobs:
         with:
           draft: false
           files: |
-            dist/**/*
+            firefly-api-${{ needs.build.outputs.version }}.zip
           name: firefly-api ${{ needs.build.outputs.version }}
           tag_name: ${{ needs.build.outputs.version }}
