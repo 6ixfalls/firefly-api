@@ -92,4 +92,4 @@ jobs:
           draft: false
           files: |
             dist/**/*
-          name: firefly-api ${{ jobs.build.outputs.version }}
+          name: firefly-api ${{ needs.build.outputs.version }}
