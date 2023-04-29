@@ -73,6 +73,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: dist
+          path: dist
       - name: Publish
         run: npm publish
         env:
@@ -86,6 +87,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: dist
+          path: dist
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
