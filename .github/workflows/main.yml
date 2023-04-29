@@ -90,6 +90,8 @@ jobs:
         with:
           name: dist
           path: dist
+      - name: ZIP Files
+        run: zip -r firefly-api-${{ needs.build.outputs.version }}.zip dist
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
