@@ -62,7 +62,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     name: Publish to NPM
-    if: needs.build.outputs.hit-cache != true
+    if: needs.build.outputs.hit-cache != 'true'
     steps:
       - uses: actions/checkout@v3
         with:
@@ -89,7 +89,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     name: Release to GitHub
-    if: needs.build.outputs.hit-cache != true
+    if: needs.build.outputs.hit-cache != 'true'
     steps:
       - name: Download built files
         uses: actions/download-artifact@v3
